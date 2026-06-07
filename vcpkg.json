@@ -1,0 +1,9 @@
+{
+    "name" : "lariat-data-platform",
+    "version" : "0.1.0",
+    "dependencies" : [
+        "argparse",
+        "spdlog",
+        "yyjson"
+    ]
+}
