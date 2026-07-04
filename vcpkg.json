@@ -4,6 +4,7 @@
     "dependencies" : [
         "argparse",
         "spdlog",
+        "minio-cpp",
         "yyjson"
     ]
 }
