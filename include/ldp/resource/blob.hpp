@@ -32,14 +32,15 @@ struct LdpBlobClient
     virtual bool presignUpload(const std::string& bucket, const std::string& key, Callback callback, size_t expiration = LDP_BLOB_DEFAULT_EXPIRATION) = 0;
 };
 
-struct LdpBlobStorage
+class LdpBlobStorage
 {
+public:
     using SourcePtr = std::unique_ptr<LdpBlobSource, std::function<void(LdpBlobSource*)>>;
     using SinkPtr = std::unique_ptr<LdpBlobSink, std::function<void(LdpBlobSink*)>>;
     using ClientPtr = std::unique_ptr<LdpBlobClient, std::function<void(LdpBlobClient*)>>;
-    virtual bool createSource(SourcePtr& source) = 0;
-    virtual bool createSink(SinkPtr& sink) = 0;
-    virtual bool createClient(ClientPtr& client) = 0;
+    virtual SourcePtr createSource() = 0;
+    virtual SinkPtr createSink() = 0;
+    virtual ClientPtr createClient() = 0;
 };
 
 using LdpBlobStoragePtr = std::unique_ptr<LdpBlobStorage, std::function<void(LdpBlobStorage*)>>;

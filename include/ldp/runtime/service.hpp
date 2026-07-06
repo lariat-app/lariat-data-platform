@@ -1,21 +1,20 @@
 #ifndef LDP_RUNTIME_SERVICE_HPP
 #define LDP_RUNTIME_SERVICE_HPP
 
-#include <ldp/resource/blob.hpp>
-#include <ldp/resource/message.hpp>
+#include <ldp/resource/fifo.hpp>
 
-struct LdpServiceRuntime
+struct LdpResourceConnector
 {
-    virtual LdpBlobStoragePtr createBlobStorage(const std::string& name) = 0;
-    virtual LdpMessageBrokerPtr createMessageBroker(const std::string& name) = 0;
-    virtual LdpEventBrokerPtr createEventBroker(const std::string& name) = 0;
-    virtual LdpStreamBrokerPtr createStreamBroker(const std::string& name) = 0;
+    virtual LdpFifoPtr createFifo(const std::string& name) = 0; 
 };
 
 struct LdpService
 {
-    virtual bool initialize(LdpServiceRuntime* runtime) = 0;
+    virtual bool initialize(LdpResourceConnector* connector) = 0;
     virtual bool shutdown() = 0;
 };
+
+using LdpResourceConnectorPtr = std::unique_ptr<LdpResourceConnector, std::function<void(LdpResourceConnector*)>>;
+using LdpServicePtr = std::unique_ptr<LdpService, std::function<void(LdpService*)>>;
 
 #endif
