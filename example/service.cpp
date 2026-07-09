@@ -4,9 +4,14 @@
 #include <event2/http.h>
 #include <event2/listener.h>
 
+#include <yyjson.h>
+
 #include <sstream>
 
-static void encodeMessage(evhttp_request *req, std::ostringstream &stream);
+static void encodeMessage(evhttp_request *req, std::ostringstream &stream)
+{
+    
+}
 
 static bool decodeMessage(evhttp_request *req, std::istringstream &stream);
 
@@ -16,7 +21,7 @@ public:
     MyExampleService() = default;
     ~MyExampleService() = default;
 
-    bool onInitialize(LdpResourceConnector *connector) override
+    bool onInitialize(LdpConnector *connector) override
     {
         bool result(false);
 

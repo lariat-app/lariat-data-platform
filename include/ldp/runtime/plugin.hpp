@@ -7,8 +7,8 @@
 struct LdpPlugin
 {
     using Ptr = std::unique_ptr<LdpPlugin, std::function<void(LdpPlugin*)>>;
-    virtual LdpFifo *createFifo(LdpConfig* config) = 0;
-    virtual void destroyFifo(LdpFifo *fifo) = 0;
+    virtual LdpFifo *createFifo(LdpConfig* config) const = 0;
+    virtual void destroyFifo(LdpFifo *fifo) const = 0;
 };
 
 

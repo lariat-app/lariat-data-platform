@@ -20,7 +20,7 @@ struct LdpService
 struct LdpServiceFactory
 {
     using Ptr = std::unique_ptr<LdpServiceFactory, std::function<void(LdpServiceFactory*)>>;
-    virtual LdpService::Ptr createService() = 0;
+    virtual LdpService::Ptr createService() const = 0;
 };
 
 #endif

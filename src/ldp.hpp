@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include <unordered_map>
+#include <variant>
 
 namespace ldp
 {
@@ -23,18 +24,16 @@ namespace ldp
 
     class Config : public LdpConfig
     {
-
+    private:
+        using ObjectType = std::map<std::string, std::unique_ptr<Config>>;
+        using ArrayType = std::vector<std::unique_ptr<Config>>;
+        std::variant<std::monostate, bool, int, float, std::string, ArrayType, ObjectType> _value;
     };
 
     class Module
     {
         LdpPlugin* getPlugin() const;
         LdpService* getService() const;
-    };
-
-    class Plugin : public LdpPlugin
-    {
-
     };
 
     class Connector : public LdpConnector
@@ -51,6 +50,11 @@ namespace ldp
 
     class Runtime : public LdpRuntime
     {
-
+    public:
+        Runtime() = default;
+        ~Runtime() = default;
+        LdpLogger::Ptr openLogger(std::ostream& output, LdpLogLevel level) const override;
+        LdpConfig::Ptr readConfig(std::istream& input, LdpLogger* logger) const override;
+        LdpConnector::Ptr createConnector(const LdpConfig* config, LdpLogger* logger) const override;
     };
 }
