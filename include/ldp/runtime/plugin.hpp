@@ -4,8 +4,9 @@
 #include <ldp/core/config.hpp>
 #include <ldp/resource/fifo.hpp>
 
-struct LdpResourcePlugin
+struct LdpPlugin
 {
+    using Ptr = std::unique_ptr<LdpPlugin, std::function<void(LdpPlugin*)>>;
     virtual LdpFifo *createFifo(LdpConfig* config) = 0;
     virtual void destroyFifo(LdpFifo *fifo) = 0;
 };

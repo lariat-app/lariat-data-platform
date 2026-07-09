@@ -17,8 +17,3 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(spdlog CONFIG REQUIRED)
 find_package(yyjson CONFIG REQUIRED)
-
-file(GLOB RUNTIME_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime/*.cpp)
-add_library(ldp_runtime ${RUNTIME_SOURCES} ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime.cpp)
-target_include_directories(ldp_runtime PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(ldp_runtime PUBLIC spdlog::spdlog yyjson::yyjson)

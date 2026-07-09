@@ -6,6 +6,7 @@
 
 struct LdpConfig
 {
+    using Ptr = std::unique_ptr<LdpConfig, std::function<void(LdpConfig*)>>;
     int placeHolder;
 };
 

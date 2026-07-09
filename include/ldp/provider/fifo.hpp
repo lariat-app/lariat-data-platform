@@ -7,23 +7,23 @@
 class LdpFifoProvider : public LdpFifo
 {
 public:
-    SourcePtr createSource() override
+    LdpFifoSource::Ptr createSource() override final
     {
-        return SourcePtr(new LdpFifoSource(), [this](LdpFifoSource *source) { destroySourcePtr(source); });
+        return LdpFifoSource::Ptr(createSourcePtr(), [this](LdpFifoSource *source) { destroySourcePtr(source); });
     }
 
-    SinkPtr createSink() override
+    LdpFifoSink::Ptr createSink() override final
     {
-        return SinkPtr(new LdpFifoSink(), [this](LdpFifoSink *sink) { destroySinkPtr(sink); });
+        return LdpFifoSink::Ptr(createSinkPtr(), [this](LdpFifoSink *sink) { destroySinkPtr(sink); });
     }
     
     virtual bool configure(LdpConfig* config) = 0;
-
-protected:
     
     virtual LdpFifoSource* createSourcePtr() = 0;
     
     virtual LdpFifoSink* createSinkPtr() = 0;
+
+protected:
 
     virtual void destroySourcePtr(LdpFifoSource* source)
     {

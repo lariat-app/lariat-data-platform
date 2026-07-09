@@ -7,22 +7,21 @@
 
 struct LdpFifoSource
 {
-    bool read(std::ostream& output);
+    using Ptr = std::unique_ptr<LdpFifoSource, std::function<void(LdpFifoSource*)>>;
+    virtual bool read(std::ostream& output) = 0;
 };
 
 struct LdpFifoSink
 {
-    bool write(std::ostream& input);
+    using Ptr = std::unique_ptr<LdpFifoSink, std::function<void(LdpFifoSink*)>>;
+    virtual bool write(std::istream& input) = 0;
 };
 
 struct LdpFifo
 {
-    using SourcePtr = std::unique_ptr<LdpFifoSource, std::function<void(LdpFifoSource*)>>;
-    using SinkPtr = std::unique_ptr<LdpFifoSink, std::function<void(LdpFifoSink*)>>;
-    virtual SourcePtr createSource() = 0;
-    virtual SinkPtr createSink() = 0;
+    using Ptr = std::unique_ptr<LdpFifo, std::function<void(LdpFifo*)>>;
+    virtual LdpFifoSource::Ptr createSource() = 0;
+    virtual LdpFifoSink::Ptr createSink() = 0;
 };
-
-using LdpFifoPtr = std::unique_ptr<LdpFifo, std::function<void(LdpFifo*)>>;
 
 #endif // LDP_FIFO_HPP

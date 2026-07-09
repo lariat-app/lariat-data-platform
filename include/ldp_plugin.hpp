@@ -6,7 +6,7 @@
 #include <ldp/provider/fifo.hpp>
 #include <ldp/runtime/plugin.hpp>
 
-struct LdpDefaultPlugin : public LdpResourcePlugin
+struct LdpDefaultPlugin : public LdpPlugin
 {
     LdpDefaultPlugin() = default;
     ~LdpDefaultPlugin() = default;
@@ -23,7 +23,7 @@ struct LdpDefaultPlugin : public LdpResourcePlugin
 
 
 #define LDP_EXPORT_PLUGIN(INSTANCE) \
-    extern "C" LdpResourcePlugin* ldp_get_plugin() \
+    extern "C" LdpPlugin* ldp_get_plugin() \
     { \
         return &INSTANCE; \
     }
@@ -31,7 +31,9 @@ struct LdpDefaultPlugin : public LdpResourcePlugin
 template <typename FifoProvider>
 struct LdpFifoPlugin : public LdpDefaultPlugin
 {
-    static_assert<std::is_base_of_v<LdpFifoProvider, FifoProvider>, "FifoProvider must derive from LdpFifoProvider">();
+    LdpFifoPlugin() = default;
+    ~LdpFifoPlugin() = default;
+    static_assert(std::is_base_of_v<LdpFifoProvider, FifoProvider>, "FifoProvider must derive from LdpFifoProvider");
     LdpFifo *createFifo(LdpConfig* config) override
     {
         std::unique_ptr<FifoProvider, std::function<void(FifoProvider*)>> provider(new FifoProvider(), [this](FifoProvider *provider) { destroyFifo(provider); });
@@ -49,13 +51,8 @@ struct LdpFifoPlugin : public LdpDefaultPlugin
 };
 
 #define LDP_FIFO_PLUGIN(PROVIDER) \
-    struct FIFO_PLUGIN : public LdpFifoPlugin<PROVIDER> \
-    { \
-        FIFO_PLUGIN() = default; \
-        ~FIFO_PLUGIN() = default; \
-    }; \
-    static FIFO_PLUGIN instance; \
-    LDP_EXPORT_PLUGIN(instance)
+    static LdpFifoPlugin<PROVIDER> g_fifoPluginInstance; \
+    LDP_EXPORT_PLUGIN(g_fifoPluginInstance)
 
 
 #endif
