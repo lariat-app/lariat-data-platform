@@ -6,14 +6,23 @@
 #include <ldp/runtime/plugin.hpp>
 #include <ldp/runtime/service.hpp>
 
-struct LdpRuntime
+class LdpRuntime
 {
-    using Ptr = std::unique_ptr<LdpRuntime, std::function<void(LdpRuntime*)>>;
-    virtual LdpLogger::Ptr openLogger(std::ostream& output, LdpLogLevel level) const = 0;
-    virtual LdpConfig::Ptr readConfig(std::istream& input, LdpLogger* logger) const = 0;
-    virtual LdpConnector::Ptr createConnector(const LdpConfig* config, LdpLogger* logger) const = 0;
+public:
+    LdpRuntime() = default;
+    ~LdpRuntime() = default;
+    bool initialize(
+        std::ostream &logSink, 
+        LdpLogLevel level, 
+        std::istream &configSource,
+        const std::string& serviceName);
+    int dispatch();
+    void shutdown(int signum);
+private:
+    std::unique_ptr<LdpLogger> _logger;
+    std::unique_ptr<LdpConfig> _config;
+    std::unique_ptr<LdpConnector> _connector;
+    std::unique_ptr<LdpServiceFactory> _serviceFactory;
 };
-
-LdpRuntime::Ptr LdpInitialize();
 
 #endif // LDP_RUNTIME_HPP

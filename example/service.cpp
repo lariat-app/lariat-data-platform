@@ -21,7 +21,7 @@ public:
     MyExampleService() = default;
     ~MyExampleService() = default;
 
-    bool onInitialize(LdpConnector *connector) override
+    bool onInitialize(LdpConnector &connector) override
     {
         bool result(false);
 
@@ -31,7 +31,7 @@ public:
         if (_httpServer && (evhttp_bind_socket(_httpServer.get(), "0.0.0.0", 8080) == 0))
         {
             evhttp_set_cb(_httpServer.get(), "/messages", requestCallback, this);
-            _fifo = connector->createFifo("myfifo_resource");
+            _fifo = connector.acquireFifo("myfifo_resource");
             result = (_fifo != nullptr);
         }
 
@@ -71,7 +71,7 @@ private:
         std::ostringstream output;
         LdpFifoSource::Ptr source;
 
-        source = _fifo->createSource();
+        source = _fifo->acquireSource();
         if (source->read(output))
         {
             encodeMessage(req, output);
@@ -89,7 +89,7 @@ private:
 
         if (decodeMessage(req, input))
         {
-            sink = _fifo->createSink();
+            sink = _fifo->acquireSink();
             if (sink->write(input))
             {
                 evhttp_send_reply(req, HTTP_OK, "OK", nullptr);

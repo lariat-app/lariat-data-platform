@@ -3,16 +3,17 @@
 
 #include <ldp/resource/fifo.hpp>
 
-struct LdpConnector
+class LdpConnector
 {
+public:
     using Ptr = std::unique_ptr<LdpConnector, std::function<void(LdpConnector*)>>;
-    virtual LdpFifo::Ptr createFifo(const std::string& name) = 0; 
+    LdpFifo::Ptr acquireFifo(const std::string& name);
 };
 
 struct LdpService
 {
     using Ptr = std::unique_ptr<LdpService, std::function<void(LdpService*)>>;
-    virtual bool onInitialize(LdpConnector* connector) = 0;
+    virtual bool onInitialize(LdpConnector& connector) = 0;
     virtual bool onDispatch() = 0;
     virtual void onShutdown() = 0;
 };
@@ -20,7 +21,8 @@ struct LdpService
 struct LdpServiceFactory
 {
     using Ptr = std::unique_ptr<LdpServiceFactory, std::function<void(LdpServiceFactory*)>>;
-    virtual LdpService::Ptr createService() const = 0;
+    virtual LdpService *createService() const = 0;
+    virtual void destroyService(LdpService* service) const = 0;
 };
 
 #endif

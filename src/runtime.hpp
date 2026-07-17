@@ -1,5 +1,5 @@
-#ifndef LDP_HPP
-#define LDP_HPP
+#ifndef RUNTIME_HPP
+#define RUNTIME_HPP
 
 #include <ldp_runtime.hpp>
 
@@ -11,4 +11,4 @@ namespace ldp
     bool initializeService(std::unique_ptr<LdpService> &service, const LdpConfig &config, LdpLogger &logger, const std::string& serviceName);
 }
 
-#endif // LDP_HPP
+#endif // RUNTIME_HPP

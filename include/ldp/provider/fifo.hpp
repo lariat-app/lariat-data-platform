@@ -2,40 +2,23 @@
 #define LDP_PROVIDER_FIFO_HPP
 
 #include <ldp/core/config.hpp>
+#include <ldp/core/logger.hpp>
 #include <ldp/resource/fifo.hpp>
 
-class LdpFifoProvider : public LdpFifo
+class LdpFifoBase : public LdpFifo
 {
 public:
-    LdpFifoSource::Ptr createSource() override final
-    {
-        return LdpFifoSource::Ptr(createSourcePtr(), [this](LdpFifoSource *source) { destroySourcePtr(source); });
-    }
-
-    LdpFifoSink::Ptr createSink() override final
-    {
-        return LdpFifoSink::Ptr(createSinkPtr(), [this](LdpFifoSink *sink) { destroySinkPtr(sink); });
-    }
-    
-    virtual bool configure(LdpConfig* config) = 0;
-    
-    virtual LdpFifoSource* createSourcePtr() = 0;
-    
-    virtual LdpFifoSink* createSinkPtr() = 0;
-
+    virtual bool configure(const LdpConfig &config, LdpLogger &logger) = 0;
 protected:
-
-    virtual void destroySourcePtr(LdpFifoSource* source)
-    {
-        delete source;
-    }
-    
-    virtual void destroySinkPtr(LdpFifoSink* sink)
-    {
-        delete sink;
-    }
+    virtual LdpFifoSource *createSource() = 0;
+    virtual LdpFifoSink *createSink() = 0;
 };
 
+struct LdpFifoProvider
+{
+    virtual LdpFifo* createFifo(const LdpConfig &config, LdpLogger &logger) const = 0;
+    virtual void destroyFifo(LdpFifo* fifo) const = 0;
+};
 
 
 #endif

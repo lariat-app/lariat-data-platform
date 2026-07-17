@@ -140,24 +140,42 @@ private:
 
 class MyFifoProvider : public LdpFifoProvider
 {
-public:
-    bool configure(LdpConfig *config) override
+protected:
+    bool configure(const LdpConfig &config, LdpLogger &logger) override
     {
-        // Configure the FIFO based on the provided configuration
+        LdpConfig::Object object;
+        if (config.getObject(object))
+        {
+            int maxCountInt(defaultMaxCount);
+            int maxSizeInt(defaultMaxSize);
+            LdpConfig::ObjectReader reader(object);
+            if(reader.getInt("maxCount", maxCountInt) && reader.getInt("maxSize", maxSizeInt))
+            {
+                // log
+            }
+
+            if(reader.getInt("maxSize", maxSizeInt))
+            {
+                // log
+            }
+            _fifo.setup(static_cast<size_t>(maxCountInt), static_cast<size_t>(maxSizeInt));
+        }
         return true;
     }
 
-    LdpFifoSource *createSourcePtr() override
+    LdpFifoSource *createSource() override
     {
         return new MyFifoSource(&_fifo);
     }
 
-    LdpFifoSink *createSinkPtr() override
+    LdpFifoSink *createSink() override
     {
         return new MyFifoSink(&_fifo);
     }
 
 private:
+    const size_t defaultMaxCount = 10;
+    const size_t defaultMaxSize = 1024;
     MyFifo _fifo;
 };
 

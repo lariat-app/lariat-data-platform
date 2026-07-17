@@ -10,9 +10,14 @@ public:
     static_assert(std::is_base_of<LdpService, ServiceType>::value, "ServiceType must derive from LdpService");
     LdpBasicServiceFactory() = default;
     ~LdpBasicServiceFactory() = default;
-    LdpService::Ptr createService() override
+    LdpService* createService() const override
     {
-        return LdpService::Ptr(new ServiceType(), [](LdpService* service) { delete service; });
+        return new ServiceType();
+    }
+
+    void destroyService(LdpService* service) const override
+    {
+        delete service;
     }
 };
 

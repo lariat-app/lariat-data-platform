@@ -17,3 +17,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(spdlog CONFIG REQUIRED)
 find_package(yyjson CONFIG REQUIRED)
+
+add_library(ldpcore INTERFACE)
+target_include_directories(ldpcore INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+file(GLOB LDPX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+add_executable(ldpx ${LDPX_SOURCES})
+target_include_directories(ldpx PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(ldpx PRIVATE ldpcore)
