@@ -1,60 +1,47 @@
 #ifndef LDP_PLUGIN_HPP
 #define LDP_PLUGIN_HPP
 
-#include <ldp/core/config.hpp>
-#include <ldp/resource/fifo.hpp>
-#include <ldp/provider/fifo.hpp>
-#include <ldp/runtime/plugin.hpp>
+#include <ldp/common/system.hpp>
+#include <ldp/resource/provider.hpp>
+#include <ldp/templates/fifo.ipp>
 
-struct LdpDefaultPlugin : public LdpPlugin
-{
-    LdpDefaultPlugin() = default;
-    ~LdpDefaultPlugin() = default;
-    LdpFifo *createFifo(const LdpConfig &config, LdpLogger &logger) const override
-    {
-        logger.error("createFifo not implemented in this plugin");
-        return nullptr;
+#define LDP_EXPORT_PLUGIN(INTERFACE, TEMPLATE, OBJECT) \
+    struct INTERFACE##FactoryImpl : public INTERFACE##Factory \
+    { \
+        INTERFACE##FactoryImpl() = default; \
+        ~INTERFACE##FactoryImpl() = default; \
+        INTERFACE *createObject(const LdpConfig &config, LdpLogger &logger) const override \
+        { \
+            INTERFACE *result(nullptr); \
+            std::unique_ptr<TEMPLATE> object(new OBJECT()); \
+            if (object) \
+            { \
+                if (object->configure(config, logger)) \
+                { \
+                    result = object.release(); \
+                } \
+                else \
+                { \
+                    logger.error("Failed to configure %s", #OBJECT); \
+                } \
+            } \
+            else \
+            { \
+                logger.error("Failed to create %s", #OBJECT); \
+            } \
+            return result; \
+        } \
+        void destroyObject(INTERFACE *object) const override \
+        { \
+            delete object; \
+        } \
+    };\
+    extern "C" LDP_EXPORT_DLL INTERFACE##Factory *get##INTERFACE##Factory() \
+    { \
+        static INTERFACE##FactoryImpl factory; \
+        return &factory; \
     }
 
-    void destroyFifo(LdpFifo *fifo) const override
-    {
-        // no-op
-    }
-};
-
-#define LDP_EXPORT_PLUGIN(INSTANCE)        \
-    extern "C" LdpPlugin *ldp_get_plugin() \
-    {                                      \
-        return &INSTANCE;                  \
-    }
-
-template <typename FifoProvider>
-struct LdpFifoPlugin : public LdpDefaultPlugin
-{
-    LdpFifoPlugin() = default;
-    ~LdpFifoPlugin() = default;
-    static_assert(std::is_base_of_v<LdpFifoProvider, FifoProvider>, "FifoProvider must derive from LdpFifoProvider");
-    LdpFifo *createFifo(const LdpConfig &config, LdpLogger &logger) const override
-    {
-        std::unique_ptr<FifoProvider, std::function<void(FifoProvider *)>> provider(new FifoProvider(), [this](FifoProvider *provider) {
-            destroyFifo(provider);
-        });
-        if (!provider->configure(config, logger))
-        {
-            logger.error("Failed to configure FifoProvider");
-            provider.reset();
-        }
-        return provider.release();
-    }
-
-    void destroyFifo(LdpFifo *fifo) const override
-    {
-        delete fifo;
-    }
-};
-
-#define LDP_FIFO_PLUGIN(PROVIDER)                        \
-    static LdpFifoPlugin<PROVIDER> g_fifoPluginInstance; \
-    LDP_EXPORT_PLUGIN(g_fifoPluginInstance)
+#define LDP_EXPORT_FIFO(FIFO_TYPE) LDP_EXPORT_PLUGIN(LdpFifo, ldp::Fifo, FIFO_TYPE)
 
 #endif

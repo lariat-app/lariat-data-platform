@@ -1,11 +1,13 @@
-#ifndef LDP_CORE_CONFIG_HPP
-#define LDP_CORE_CONFIG_HPP
+#ifndef LDP_FRAMEWORK_CONFIG_HPP
+#define LDP_FRAMEWORK_CONFIG_HPP
 
-#include <memory>
 #include <functional>
+#include <iostream>
 #include <map>
-#include <vector>
+#include <memory>
+#include <string>
 #include <string_view>
+#include <vector>
 
 enum class LdpConfigType
 {
@@ -24,7 +26,6 @@ struct LdpConfig
     using ArrayItemCallback = std::function<void(const LdpConfig *)>;
     using Object = std::map<std::string, const LdpConfig *>;
     using ObjectItemCallback = std::function<void(const std::string_view &, const LdpConfig *)>;
-    using Ptr = std::unique_ptr<LdpConfig, std::function<void(LdpConfig *)>>;
     virtual LdpConfigType getType() const = 0;
     virtual bool getInt(int &value) const = 0;
     virtual bool getFloat(float &value) const = 0;

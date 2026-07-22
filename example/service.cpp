@@ -1,5 +1,6 @@
 #include <ldp_service.hpp>
 
+#include <event2/buffer.h>
 #include <event2/event.h>
 #include <event2/http.h>
 #include <event2/listener.h>
@@ -8,20 +9,36 @@
 
 #include <sstream>
 
-static void encodeMessage(evhttp_request *req, std::ostringstream &stream)
+static bool readMessage(evhttp_request *req, std::string &message)
 {
-    
+    evbuffer *inputBuffer = evhttp_request_get_input_buffer(req);
+    if (inputBuffer)
+    {
+        size_t length = evbuffer_get_length(inputBuffer);
+        message.resize(length);
+        evbuffer_copyout(inputBuffer, message.data(), length);
+        return true;
+    }
+    return false;
 }
 
-static bool decodeMessage(evhttp_request *req, std::istringstream &stream);
+static bool writeMessage(evhttp_request *req, const std::string &message)
+{
+    evbuffer *buf = evbuffer_new();
+    if (buf)
+    {
+        evbuffer_add_printf(buf, "%s", message.c_str());
+        evhttp_send_reply(req, HTTP_OK, "OK", buf);
+        evbuffer_free(buf);
+        return true;
+    }
+    return false;
+}
 
-class MyExampleService : public LdpService
+class MyExampleService : public ldp::Service
 {
 public:
-    MyExampleService() = default;
-    ~MyExampleService() = default;
-
-    bool onInitialize(LdpConnector &connector) override
+    bool connect(LdpConnector &connector, LdpLogger &logger) override
     {
         bool result(false);
 
@@ -38,13 +55,13 @@ public:
         return result;
     }
 
-    bool onDispatch() override
+    int launch() override
     {
         event_base_dispatch(_eventBase.get());
-        return true;
+        return 0;
     }
 
-    void onShutdown() override
+    void shutdown() override
     {
         event_base_loopbreak(_eventBase.get());
     }
@@ -68,41 +85,12 @@ private:
 
     void handleGet(evhttp_request *req)
     {
-        std::ostringstream output;
-        LdpFifoSource::Ptr source;
-
-        source = _fifo->acquireSource();
-        if (source->read(output))
-        {
-            encodeMessage(req, output);
-        }
-        else
-        {
-            evhttp_send_error(req, HTTP_INTERNAL, "Failed to read from FIFO");
-        }
+        
     }
 
     void handlePost(evhttp_request *req)
     {
-        std::istringstream input;
-        LdpFifoSink::Ptr sink;
-
-        if (decodeMessage(req, input))
-        {
-            sink = _fifo->acquireSink();
-            if (sink->write(input))
-            {
-                evhttp_send_reply(req, HTTP_OK, "OK", nullptr);
-            }
-            else
-            {
-                evhttp_send_error(req, HTTP_INTERNAL, "Failed to write to FIFO");
-            }
-        }
-        else
-        {
-            evhttp_send_error(req, HTTP_BADREQUEST, "Invalid request body");
-        }
+        
     }
 
     LdpFifo::Ptr _fifo;
@@ -110,4 +98,4 @@ private:
     std::unique_ptr<evhttp, decltype(&evhttp_free)> _httpServer{nullptr, &evhttp_free};
 };
 
-LDP_SERVICE(MyExampleService)
+LDP_EXPORT_SERVICE(MyExampleService)

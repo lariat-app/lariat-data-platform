@@ -138,9 +138,9 @@ private:
     MyFifo *_fifo;
 };
 
-class MyFifoProvider : public LdpFifoProvider
+class MyFifoProvider : public ldp::Fifo
 {
-protected:
+public:
     bool configure(const LdpConfig &config, LdpLogger &logger) override
     {
         LdpConfig::Object object;
@@ -179,4 +179,4 @@ private:
     MyFifo _fifo;
 };
 
-LDP_FIFO_PLUGIN(MyFifoProvider)
+LDP_EXPORT_FIFO(MyFifoProvider)

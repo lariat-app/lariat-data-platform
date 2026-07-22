@@ -1,31 +1,45 @@
 #ifndef LDP_SERVICE_HPP
 #define LDP_SERVICE_HPP
 
-#include <ldp/runtime/service.hpp>
+#include <ldp/common/system.hpp>
+#include <ldp/resource/consumer.hpp>
+#include <ldp/templates/service.ipp>
 
-template <typename ServiceType>
-class LdpBasicServiceFactory : public LdpServiceFactory
-{
-public:
-    static_assert(std::is_base_of<LdpService, ServiceType>::value, "ServiceType must derive from LdpService");
-    LdpBasicServiceFactory() = default;
-    ~LdpBasicServiceFactory() = default;
-    LdpService* createService() const override
-    {
-        return new ServiceType();
-    }
-
-    void destroyService(LdpService* service) const override
-    {
-        delete service;
-    }
-};
-
-#define LDP_SERVICE(ServiceType) \
-    static LdpBasicServiceFactory<ServiceType> g_serviceFactory; \
-    extern "C" LdpServiceFactory* createServiceFactory() \
+#define LDP_EXPORT_SERVICE(SERVICE) \
+    struct SERVICE##FactoryImpl : public LdpServiceFactory \
     { \
-        return &g_serviceFactory; \
+        SERVICE##FactoryImpl() = default; \
+        ~SERVICE##FactoryImpl() = default; \
+        LdpService *createObject(LdpConnector &connector, LdpLogger &logger) const override \
+        { \
+            LdpService *result(nullptr); \
+            std::unique_ptr<ldp::Service> object(new SERVICE()); \
+            if (object) \
+            { \
+                if (object->connect(connector, logger)) \
+                { \
+                    result = object.release(); \
+                } \
+                else \
+                { \
+                    logger.error("Failed to connect %s", #SERVICE); \
+                } \
+            } \
+            else \
+            { \
+                logger.error("Failed to create %s", #SERVICE); \
+            } \
+            return result; \
+        } \
+        void destroyObject(LdpService *object) const override \
+        { \
+            delete object; \
+        } \
+    };\
+    extern "C" LDP_EXPORT_DLL LdpServiceFactory *getLdpServiceFactory() \
+    { \
+        static SERVICE##FactoryImpl factory; \
+        return &factory; \
     }
 
-#endif // LDP_SERVICE_HPP
+#endif
