@@ -40,3 +40,12 @@ resource, so an application that works in one environment should work
 in another, assuming resources have been provisioned correctly. In 
 addition to simplifying the migration process, the cost of mantaining 
 cloud resources for testing purposes can be reduced.
+
+## Licensing
+
+While the runtime is MIT license, plugins licensed separately. This 
+allows the plugins to comply with the licensing requirements of their 
+dependencies. All plugins are loaded dynamically, so this works with 
+almost any license type, including GPL. Plugins can be licensed under 
+the individual or organization that added them, provided that it does 
+not break compliance in the larger platform.
