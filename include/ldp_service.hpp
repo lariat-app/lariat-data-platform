@@ -36,7 +36,7 @@
             delete object; \
         } \
     };\
-    extern "C" LDP_EXPORT_DLL LdpServiceFactory *getLdpServiceFactory() \
+    extern "C" LDP_EXPORT_DLL LdpServiceFactory *getFactory() \
     { \
         static SERVICE##FactoryImpl factory; \
         return &factory; \

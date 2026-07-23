@@ -36,7 +36,7 @@
             delete object; \
         } \
     };\
-    extern "C" LDP_EXPORT_DLL INTERFACE##Factory *get##INTERFACE##Factory() \
+    extern "C" LDP_EXPORT_DLL INTERFACE##Factory *getFactory() \
     { \
         static INTERFACE##FactoryImpl factory; \
         return &factory; \

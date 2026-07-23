@@ -40,7 +40,7 @@ namespace ldpx
             _library = std::unique_ptr<Library>(Library::Create());
             if (_library->load(path))
             {
-                std::function<FactoryType *()> getFactoryFunc = reinterpret_cast<FactoryType *(*)()>(_library->getSymbol("get" + std::string(typeid(FactoryType).name())));
+                std::function<FactoryType *()> getFactoryFunc = reinterpret_cast<FactoryType *(*)()>(_library->getSymbol("getFactory"));
                 _factory = reinterpret_cast<FactoryType *>(getFactoryFunc());
                 result = std::holds_alternative<FactoryType *>(_factory);
             }
