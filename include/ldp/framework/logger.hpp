@@ -1,13 +1,50 @@
 #ifndef LDP_FRAMEWORK_LOGGER_HPP
 #define LDP_FRAMEWORK_LOGGER_HPP
 
+#include <cstdarg>
+
+enum LdpLogLevel
+{
+    LDP_LOG_TRACE = 0,
+    LDP_LOG_DEBUG,
+    LDP_LOG_INFO,
+    LDP_LOG_WARNING,
+    LDP_LOG_ERROR
+};
+
 struct LdpLogger
 {
-    virtual void trace(const char* fmt, ...) = 0;
-    virtual void debug(const char* fmt, ...) = 0;
-    virtual void info(const char* fmt, ...) = 0;
-    virtual void warning(const char* fmt, ...) = 0;
-    virtual void error(const char* fmt, ...) = 0;
+    template <typename... Args>
+    void trace(const char* fmt, Args... args)
+    {
+        log(LDP_LOG_TRACE, fmt, args...);
+    }
+    
+    template <typename... Args>
+    void debug(const char* fmt, Args... args)
+    {
+        log(LDP_LOG_DEBUG, fmt, args...);
+    }
+    
+    template <typename... Args>
+    void info(const char* fmt, Args... args)
+    {
+        log(LDP_LOG_INFO, fmt, args...);
+    }
+    
+    template <typename... Args>
+    void warning(const char* fmt, Args... args)
+    {
+        log(LDP_LOG_WARNING, fmt, args...);
+    }
+    
+    template <typename... Args>
+    void error(const char* fmt, Args... args)
+    {
+        log(LDP_LOG_ERROR, fmt, args...);
+    }
+
+    virtual void log(LdpLogLevel level, const char* fmt, ...) = 0;
 };
 
 #endif

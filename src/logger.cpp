@@ -46,42 +46,34 @@ bool ldpx::Logger::open(const std::string &logPath, bool debug, bool trace)
     return result;
 }
 
-void ldpx::Logger::trace(const char *fmt, ...)
+void ldpx::Logger::log(LdpLogLevel level, const char *fmt, ...)
 {
+    static const spdlog::level::level_enum levelMap[] = {
+        spdlog::level::trace,    // LDP_LOG_TRACE
+        spdlog::level::debug,    // LDP_LOG_DEBUG
+        spdlog::level::info,     // LDP_LOG_INFO
+        spdlog::level::warn,     // LDP_LOG_WARNING
+        spdlog::level::err       // LDP_LOG_ERROR
+    };
+    std::unique_ptr<char[]> dynamicBuffer;
+    char buffer[256];
+    std::string_view message;
+    size_t size;
     va_list args;
     va_start(args, fmt);
-    _logger->trace(fmt, args);
+    size = vsnprintf(buffer, sizeof(buffer), fmt, args);
     va_end(args);
-}
-
-void ldpx::Logger::debug(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _logger->debug(fmt, args);
-    va_end(args);
-}
-
-void ldpx::Logger::info(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _logger->info(fmt, args);
-    va_end(args);
-}
-
-void ldpx::Logger::warning(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _logger->warn(fmt, args);
-    va_end(args);
-}
-
-void ldpx::Logger::error(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    _logger->error(fmt, args);
-    va_end(args);
+    if (size >= sizeof(buffer))
+    {
+        dynamicBuffer = std::make_unique<char[]>(size + 1);
+        va_start(args, fmt);
+        vsnprintf(dynamicBuffer.get(), size + 1, fmt, args);
+        va_end(args);
+        message = std::string_view(dynamicBuffer.get(), size);
+    }
+    else
+    {
+        message = std::string_view(buffer, size);
+    }
+    _logger->log(levelMap[level], message); 
 }
