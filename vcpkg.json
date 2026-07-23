@@ -1,0 +1,11 @@
+{
+    "name" : "lariat-data-platform",
+    "version" : "0.1.0",
+    "dependencies" : [
+        "argparse",
+        "libevent",
+        "spdlog",
+        "minio-cpp",
+        "yyjson"
+    ]
+}
