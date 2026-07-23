@@ -2,6 +2,14 @@
 
 #include <miniocpp/client.h>
 
-LDP_BLOB_STORAGE_BEGIN_CLASS(minio_blob_storage)
-
-LDP_BLOB_STORAGE_END_CLASS
+class MinioBlobStorage : public ldp::BlobStorage
+{
+private:
+    std::unique_ptr<minio::creds::Provider> _credentials;
+    std::unique_ptr<minio::s3::Client> _client;
+public:
+    bool configure(const LdpConfig &config, LdpLogger &logger) override
+    {
+        return true;
+    }
+};

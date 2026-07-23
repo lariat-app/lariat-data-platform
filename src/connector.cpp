@@ -40,7 +40,7 @@ public:
         return nullptr;
     }
 private:
-    std::unique_ptr<LibraryHandle, decltype(&DLCLOSE)> _handle{nullptr, &DLCLOSE};
+    std::unique_ptr<LibraryHandle, std::function<void(LibraryHandle*)>> _handle{nullptr, [](LibraryHandle* handle) { if (handle) DLCLOSE(handle); }};
 };
 
 ldpx::Module::Library *ldpx::Module::Library::Create()

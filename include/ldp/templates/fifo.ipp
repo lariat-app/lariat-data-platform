@@ -13,20 +13,16 @@ namespace ldp
         Fifo() = default;
         LdpFifoSource::Ptr acquireSource() override
         {
-            return std::unique_ptr<LdpFifoSource, std::function<void(LdpFifoSource*)>>(createSource(), [](LdpFifoSource* source)
-            {
-                delete source;
-            });
+            return std::unique_ptr<LdpFifoSource, std::function<void(LdpFifoSource *)>>(createSource(), [](LdpFifoSource *source)
+                                                                                        { delete source; });
         }
         LdpFifoSink::Ptr acquireSink() override
         {
-            return std::unique_ptr<LdpFifoSink, std::function<void(LdpFifoSink*)>>(createSink(), [](LdpFifoSink* sink)
-            {
-                delete sink;
-            });
+            return std::unique_ptr<LdpFifoSink, std::function<void(LdpFifoSink *)>>(createSink(), [](LdpFifoSink *sink)
+                                                                                    { delete sink; });
         }
-        virtual LdpFifoSource* createSource() = 0;
-        virtual LdpFifoSink* createSink() = 0;
+        virtual LdpFifoSource *createSource() = 0;
+        virtual LdpFifoSink *createSink() = 0;
     };
 }
 

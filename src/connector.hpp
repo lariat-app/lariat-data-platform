@@ -72,11 +72,13 @@ namespace ldpx
         template <typename Factory, typename Resource>
         std::unique_ptr<Resource, std::function<void(Resource*)>> acquireResource(const std::string &name)
         {
+            _logger->debug("Acquiring resource: %s", name.c_str());
             std::unique_ptr<Resource, std::function<void(Resource*)>> result(nullptr, [](Resource *resource) {});
             LdpConfig::ObjectReader configReader(_resourceConfigs);
             LdpConfig::Object resourceConfig;
             if (configReader.getObject(name, resourceConfig))
             {
+                _logger->debug("Found configuration for resource: %s", name.c_str());
                 LdpConfig::ObjectReader resourceConfigReader(resourceConfig);
                 std::string_view providerView;
                 const LdpConfig* resourceProperties(nullptr);
@@ -85,12 +87,14 @@ namespace ldpx
                     std::string provider(providerView);
                     if (resourceConfigReader.getItem("properties", &resourceProperties))
                     {
+                        _logger->debug("Found provider: %s for resource: %s", provider.c_str(), name.c_str());
                         Module *plugin = getModule<Factory>(provider);
                         if (plugin)
                         {
                             Factory *factory = plugin->getFactory<Factory>();
                             if (factory)
                             {
+                                _logger->debug("Found factory for provider: %s", provider.c_str());
                                 result = std::unique_ptr<Resource, std::function<void(Resource*)>>(
                                     factory->createObject(*resourceProperties, *_logger), [factory](Resource* resource)
                                 {
@@ -129,7 +133,7 @@ namespace ldpx
             Module *result = findModule(providerName);
             if (!result)
             {
-                std::string libraryPath("lib" + providerName + Module::Library::Extension());
+                std::string libraryPath("libldp_" + providerName + Module::Library::Extension());
                 result = loadModule<Factory>(providerName, libraryPath);
             }
             return result;

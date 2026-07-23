@@ -22,6 +22,7 @@ namespace ldpx
         std::ofstream _file;
         std::shared_ptr<spdlog::sinks::ostream_sink_mt> _sink;
         std::shared_ptr<spdlog::logger> _logger;
+        spdlog::level::level_enum _level;
     };
 }
 

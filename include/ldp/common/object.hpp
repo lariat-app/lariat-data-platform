@@ -4,6 +4,10 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <string_view>
+
+#include <cstdint>
 
 template <typename T>
 struct LdpObject

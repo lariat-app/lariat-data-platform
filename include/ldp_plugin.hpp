@@ -4,6 +4,7 @@
 #include <ldp/common/system.hpp>
 #include <ldp/resource/provider.hpp>
 #include <ldp/templates/fifo.ipp>
+#include <ldp/templates/blob.ipp>
 
 #define LDP_EXPORT_PLUGIN(INTERFACE, TEMPLATE, OBJECT) \
     struct INTERFACE##FactoryImpl : public INTERFACE##Factory \
@@ -36,12 +37,9 @@
             delete object; \
         } \
     };\
-    extern "C" LDP_EXPORT_DLL INTERFACE##Factory *getFactory() \
-    { \
-        static INTERFACE##FactoryImpl factory; \
-        return &factory; \
-    }
+    LDP_EXPORT_FACTORY(INTERFACE##Factory, INTERFACE##FactoryImpl)
 
 #define LDP_EXPORT_FIFO(FIFO_TYPE) LDP_EXPORT_PLUGIN(LdpFifo, ldp::Fifo, FIFO_TYPE)
+#define LDP_EXPORT_BLOB_STORAGE(BLOB_STORAGE_TYPE) LDP_EXPORT_PLUGIN(LdpBlobStorage, ldp::BlobStorage, BLOB_STORAGE_TYPE)
 
 #endif
